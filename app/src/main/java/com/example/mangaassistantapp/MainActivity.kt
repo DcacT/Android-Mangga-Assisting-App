@@ -33,6 +33,13 @@ import androidx.navigation.compose.rememberNavController
 import com.example.mangaassistantapp.ui.theme.MangaAssistantAppTheme
 import androidx.compose.ui.input.pointer.pointerInput
 import android.util.Log
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.foundation.background
+import androidx.compose.ui.draganddrop.DragAndDropEvent
+import androidx.compose.ui.draganddrop.DragAndDropTarget
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.layout.onSizeChanged
+
 
 
 class MainActivity : ComponentActivity() {
@@ -94,11 +101,12 @@ enum class ButtonState {
 @Composable
 fun ConfigureScreen(navController: NavHostController) {
     // Variables to track the position of the two draggable buttons
-    var posX1 by remember { mutableStateOf(50f) } // Starting position in pixels
-    var posY1 by remember { mutableStateOf(50f) }
-    var posX2 by remember { mutableStateOf(50f) }
-    var posY2 by remember { mutableStateOf(100f) }
+    var posX1 by remember { mutableStateOf(0f) } // Starting position in pixels
+    var posY1 by remember { mutableStateOf(0f) }
+    var size1 by remember { mutableStateOf(IntSize.Zero) }
+
     // State to track the current button state
+    val density = LocalDensity.current // Access the current screen density
 
     var buttonState by remember { mutableStateOf<ButtonState>(ButtonState.Neutral) }
 
@@ -106,22 +114,19 @@ fun ConfigureScreen(navController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .background(Color.Blue) // Set the background color to blue
+//            .padding(16.dp)
             .pointerInput(Unit) {
                 // Listen for a click anywhere on the screen
                 detectTapGestures { offset ->
                     when (buttonState) {
                         ButtonState.Button1Clicked -> {
                             // Move Button 1 to the clicked location
-                            posX1 = offset.x
-                            posY1 = offset.y
+                            posX1 = offset.x - (size1.width / 2)
+                            posY1 = offset.y - (size1.height / 2)
                             Log.d("111","button1 ${offset.x} ${offset.y}")
                         }
                         ButtonState.Button2Clicked -> {
-                            // Move Button 2 to the clicked location
-                            posX2 = offset.x
-                            posY2 = offset.y
-                            Log.d("222","button2 ${offset.x} ${offset.y}")
 
                         }
                         else -> {} // Do nothing in Neutral state
@@ -134,8 +139,8 @@ fun ConfigureScreen(navController: NavHostController) {
             }
 
         ,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+//        horizontalAlignment = Alignment.CenterHorizontally,
+//        verticalArrangement = Arrangement.Center
     ) {
         // First Draggable Button
         Button(
@@ -145,37 +150,27 @@ fun ConfigureScreen(navController: NavHostController) {
 
             },
             modifier = Modifier
-                .offset(x = posX1.dp, y = posY1.dp) // Use offset with Dp values
+                .absoluteOffset(x = with(density) { posX1.toDp() }, y = with(density) { posY1.toDp() }) // Use offset with Dp values
+                .onSizeChanged { newSize ->
+                    size1 = newSize // Save the width and height
+                }
         ) {
             Text(text = "Volume Up")
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
 
-        // Second Draggable Button
-        Button(
-            onClick = {
-                buttonState = ButtonState.Button2Clicked
-                Log.d("Button2Clicked","Button2 posx: $posX2 , posy: $posY2")
-
-            },
-            modifier = Modifier
-                .offset(x = posX2.dp, y = posY2.dp) // Use offset with Dp values
-        ) {
-            Text(text = "Volume Down")
-        }
-
-        Spacer(modifier = Modifier.weight(1f)) // Push the Save & Exit button to the bottom
 
         // Save & Exit Button
         Button(
             onClick = {
                 // Save logic can go here (if needed)
-                navController.popBackStack()  // Navigate back to home screen
+//                navController.popBackStack()  // Navigate back to home screen
+                Log.d("Button1Pos","Button1 posx: $posX1 , posy: $posY1")
             },
             modifier = Modifier
                 .padding(bottom = 16.dp)
                 .size(200.dp, 80.dp)
+                .align(alignment = a) // Align the child to the bottom center
         ) {
             Text(text = "Save & Exit")
         }
@@ -183,6 +178,7 @@ fun ConfigureScreen(navController: NavHostController) {
 }
 
 @Preview(showBackground = true)
+
 @Composable
 fun GreetingPreview() {
     MangaAssistantAppTheme {
