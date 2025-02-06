@@ -1,4 +1,4 @@
-package com.example.mangaassistantapp.ui.theme
+package com.example.mangaassistantapp
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -9,6 +9,7 @@ import android.util.Log
 class VolumeKeyReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_MEDIA_BUTTON) {
+            Log.d("VolumeKeyReceiver", "Volume")
             val keyEvent = intent.getParcelableExtra<KeyEvent>(Intent.EXTRA_KEY_EVENT)
 
             if (keyEvent?.action == KeyEvent.ACTION_DOWN && keyEvent.keyCode == KeyEvent.KEYCODE_VOLUME_UP) {

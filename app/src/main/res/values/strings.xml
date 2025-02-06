@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">MangaAssistantApp</string>
+    <string name="accessibility_service_description">Tap Simulation Accessibility Service</string>
 </resources>

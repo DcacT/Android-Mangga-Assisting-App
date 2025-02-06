@@ -1,4 +1,4 @@
-package com.example.mangaassistantapp.ui.theme
+package com.example.mangaassistantapp
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.GestureDescription

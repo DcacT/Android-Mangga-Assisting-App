@@ -40,6 +40,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.media3:media3-session:1.5.1")
     implementation("androidx.navigation:navigation-compose:2.6.0")  // or the latest version
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

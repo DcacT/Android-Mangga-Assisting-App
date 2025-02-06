@@ -30,8 +30,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material3.ButtonDefaults
-
-
+import android.content.Intent
+import com.example.mangaassistantapp.TapSimulationService
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,6 +64,15 @@ fun HomeScreen(navController: NavHostController){
     val sharedPref = context.getSharedPreferences("AppPreferences", android.content.Context.MODE_PRIVATE)
     val savedIsRunning = sharedPref.getBoolean("isRunning", false) // Provide a default value
     var isRunning by remember { mutableStateOf(savedIsRunning) }
+
+    val serviceIntent = Intent(context, TapSimulationService::class.java)
+    if (isRunning) {
+        Log.d("isRunning", "Running")
+        context.startService(serviceIntent) // Start the service
+    } else {
+        Log.d("isRunning", "Stopped")
+        context.stopService(serviceIntent) // Stop the service
+    }
 
     Column(
         modifier = Modifier
