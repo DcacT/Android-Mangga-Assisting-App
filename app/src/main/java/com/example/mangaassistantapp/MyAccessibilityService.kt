@@ -1,16 +1,25 @@
 package com.example.mangaassistantapp
 
 import android.accessibilityservice.AccessibilityService
+import android.accessibilityservice.GestureDescription
 import android.content.Intent
+import android.graphics.Path
 import android.provider.Settings
 import android.view.accessibility.AccessibilityEvent
 import android.util.Log          // For Log.d
 import android.view.KeyEvent     // For KeyEvent\
+import android.content.SharedPreferences
+import android.content.Context
 val TAG = "MyAccessibilityService"
 
 class MyAccessibilityService : AccessibilityService() {
     private var isRunning: Boolean = false
+    private lateinit var sharedPref: SharedPreferences
 
+    override fun onCreate() {
+        sharedPref = applicationContext.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
+        super.onCreate()
+    }
     private fun isServiceEnabled(): Boolean {
         Log.d(TAG, "Check Service Connection")
         try {
@@ -32,7 +41,18 @@ class MyAccessibilityService : AccessibilityService() {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
     }
+    fun simulateTap(x: Float, y: Float) {
+        val path = Path().apply {
+            moveTo(x, y) // Move to tap position (100, 200)
+        }
 
+        val gesture = GestureDescription.Builder()
+            .addStroke(GestureDescription.StrokeDescription(path, 0, 100))
+            .build()
+
+        val dispatched = dispatchGesture(gesture, null, null)
+        Log.d("AutoClicker", "Tap at ($x, $y) dispatched: $dispatched")
+    }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "onStartCommand")
@@ -52,6 +72,7 @@ class MyAccessibilityService : AccessibilityService() {
     }
 
     override fun onServiceConnected() {
+
         super.onServiceConnected()
         Log.d(TAG, "service is connected")
         stopSelf()
@@ -96,10 +117,17 @@ class MyAccessibilityService : AccessibilityService() {
             when (keyCode) {
                 KeyEvent.KEYCODE_VOLUME_DOWN ->{
                     Log.d(TAG, "Vol Down")
+                    val volDn_x = sharedPref.getFloat("volDn_x", 300f) // Provide a default value
+                    val volDn_y = sharedPref.getFloat("volDn_y", 300f) // Provide a default value
+                    simulateTap(volDn_x,volDn_y)
                     return true
                 }
                 KeyEvent.KEYCODE_VOLUME_UP -> {
                     Log.d(TAG, "Vol Up")
+
+                    val volUp_x = sharedPref.getFloat("volUp_x", 0f) // Provide a default value
+                    val volUp_y = sharedPref.getFloat("volUp_y", 0f) // Provide a default value
+                    simulateTap(volUp_x,volUp_y)
                     return true
                 }
             }

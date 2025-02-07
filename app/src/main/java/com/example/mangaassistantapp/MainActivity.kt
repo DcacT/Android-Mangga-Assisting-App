@@ -105,7 +105,10 @@ class MainActivity : ComponentActivity() {
         }
         var ServiceRunning by remember { mutableStateOf(isServiceEnabled()) }
 
-
+        val init_serviceIntent = Intent(context, MyAccessibilityService::class.java).apply {
+            putExtra("isRunning",isRunning.toString())
+        }
+        context.startService(init_serviceIntent)
 
         Column(
             modifier = Modifier
@@ -175,14 +178,19 @@ class MainActivity : ComponentActivity() {
 
         val context = LocalContext.current
         val sharedPref = context.getSharedPreferences("AppPreferences", android.content.Context.MODE_PRIVATE)
-        val savedPosX1 = sharedPref.getFloat("posX1", 100f) // Provide a default value
-        val savedPosY1 = sharedPref.getFloat("posY1", 200f) // Provide a default value
 
+        val savedPosX1 = sharedPref.getFloat("volUp_x", 100f) // Provide a default value
+        val savedPosY1 = sharedPref.getFloat("volUp_y", 200f) // Provide a default value
         var posX1 by remember { mutableStateOf(savedPosX1) }
         var posY1 by remember { mutableStateOf(savedPosY1) }
-
-
         var size1 by remember { mutableStateOf(IntSize.Zero) }
+
+        val savedPosX2 = sharedPref.getFloat("volDn_x", 100f) // Provide a default value
+        val savedPosY2 = sharedPref.getFloat("volDn_y", 400f) // Provide a default value
+        var posX2 by remember { mutableStateOf(savedPosX2) }
+        var posY2 by remember { mutableStateOf(savedPosY2) }
+        var size2 by remember { mutableStateOf(IntSize.Zero) }
+
 
         // State to track the current button state
         val density = LocalDensity.current // Access the current screen density
@@ -206,14 +214,21 @@ class MainActivity : ComponentActivity() {
                                 posX1 = offset.x - (size1.width / 2)
                                 posY1 = offset.y - (size1.height / 2)
 
-                                sharedPref.edit().putFloat("posX1", posX1).apply()
-                                sharedPref.edit().putFloat("posY1", posY1).apply()
+                                sharedPref.edit().putFloat("volUp_x", posX1).apply()
+                                sharedPref.edit().putFloat("volUp_y", posY1).apply()
 
                                 Log.d("111", "button1 ${offset.x} ${offset.y}")
                             }
 
                             ButtonState.Button2Clicked -> {
+                                // Move Button 1 to the clicked location
+                                posX2 = offset.x - (size2.width / 2)
+                                posY2 = offset.y - (size2.height / 2)
 
+                                sharedPref.edit().putFloat("volDn_x", posX2).apply()
+                                sharedPref.edit().putFloat("volDn_y", posY2).apply()
+
+                                Log.d("222", "button2 ${offset.x} ${offset.y}")
                             }
 
                             else -> {} // Do nothing in Neutral state
@@ -226,8 +241,6 @@ class MainActivity : ComponentActivity() {
                 }
 
             ,
-//        horizontalAlignment = Alignment.CenterHorizontally,
-//        verticalArrangement = Arrangement.Center
         ) {
             // First Draggable Button
             Button(
@@ -246,7 +259,22 @@ class MainActivity : ComponentActivity() {
             ) {
                 Text(text = "Volume Up")
             }
+            Button(
+                onClick = {
+                    buttonState = ButtonState.Button2Clicked
+                    Log.d("Button2Clicked","Button2 posx: $posX2 , posy: $posY2")
 
+                },
+                modifier = Modifier
+                    .absoluteOffset(
+                        x = with(density) { posX2.toDp() },
+                        y = with(density) { posY2.toDp() }) // Use offset with Dp values
+                    .onSizeChanged { newSize ->
+                        size2 = newSize // Save the width and height
+                    }
+            ) {
+                Text(text = "Volume Down")
+            }
 
 
             // Save & Exit Button
@@ -258,8 +286,10 @@ class MainActivity : ComponentActivity() {
                         Log.d("SharedPreferences", "Key: $key, Value: $value")
                     }
 
-                    Log.d("savedPosX1", "Value: $savedPosX1")
-                    Log.d("savedPosY1", "Value: $savedPosY1")
+                    Log.d("savedPosX1", "Value: ${sharedPref.getFloat("volUp_x", 100f)}")
+                    Log.d("savedPosY1", "Value: ${sharedPref.getFloat("volUp_y", 100f)}")
+                    Log.d("savedPosX2", "Value: ${sharedPref.getFloat("volDn_x", 100f)}")
+                    Log.d("savedPosY2", "Value: ${sharedPref.getFloat("volDn_y", 100f)}")
 
                     navController.navigate("home")            },
                 modifier = Modifier
